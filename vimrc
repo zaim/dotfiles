@@ -14,6 +14,7 @@ set showmatch
 set autoindent
 set history=1000
 set cursorline
+set laststatus=2
 
 "if has("unnamedplus")
 "  set clipboard=unnamedplus
