@@ -28,4 +28,4 @@ set softtabstop=2
 
 set background=dark
 let g:solarized_bold=0
-colorscheme Tomorrow-Night
+colorscheme solarized
