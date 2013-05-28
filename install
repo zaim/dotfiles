@@ -1,0 +1,27 @@
+#!/bin/bash
+
+function linkfile () {
+  srcfile=$1
+  dotfile=.$srcfile
+  echo -n $dotfile -\> dotfiles/$srcfile \
+    && [[ ! -e $dotfile ]] \
+    && ln -s dotfiles/$srcfile $dotfile \
+    && echo " [ok]" \
+    || echo " [exists]"
+}
+
+cd $HOME
+
+if [ ! -d dotfiles ]; then
+  echo "No 'dotfiles' directory found!"
+  exit 1
+fi
+
+for f in dotfiles/*; do
+  if [[ $f == *install* || $f == .* ]]; then
+    continue
+  fi
+  fn=$(basename $f)
+  linkfile $fn
+done
+
