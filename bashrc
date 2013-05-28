@@ -5,6 +5,9 @@
 # Load aliases
 [[ -f ~/.bash_aliases ]] && . ~/.bash_aliases
 
+# Paths
+PATH=$PATH:/usr/local/share/npm/bin
+
 # Prompt
 PS1='\w\n$ '
 
