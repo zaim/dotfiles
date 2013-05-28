@@ -5,7 +5,6 @@ alias cd..='cd ..'
 alias cls='clear'
 alias df='df -H'
 alias dl='curl -LO'
-alias g='git'
 alias la='ls -A'
 alias ll='ls -lah'
 alias ls='ls -G'
@@ -22,6 +21,12 @@ alias rm='rm -i'
 # tmux
 alias tml='tmux list-sessions'
 alias tmk='tmux kill-session'
+
+# git
+alias g='git'
+alias gs='git status'
+alias gl='git log --color=auto'
+alias gd='git diff --color=auto'
 
 # Functions
 
