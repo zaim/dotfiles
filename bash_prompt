@@ -1,0 +1,28 @@
+
+_PS1=$PS1
+
+function bp_git_is_clean() {
+  git diff --quiet --ignore-submodules HEAD 2>/dev/null
+}
+
+function bp_git_prompt() {
+  local branch="`git branch --no-color 2>/dev/null`" 
+  if [ -n "$branch" ]; then
+    branch=${branch:1}
+    [[ "$branch" == " master" ]] && branch=''
+    branch="▪$branch "
+    if bp_git_is_clean; then
+      local ansi=32
+    else
+      local ansi=31
+    fi
+    echo -n -e '\\[\e[00;'${ansi}'m\\]'$branch'\\[\e[00m\\]'
+  fi
+}
+
+function bp_prompt() {
+  PS1="`bp_git_prompt`$_PS1"
+}
+
+PROMPT_COMMAND=bp_prompt
+
