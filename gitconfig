@@ -5,3 +5,5 @@
 	email = abuzaim12@gmail.com
 [color]
 	status = auto
+[push]
+	default = simple
