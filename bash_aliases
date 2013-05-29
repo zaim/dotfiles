@@ -27,6 +27,9 @@ alias g='git'
 alias gs='git status'
 alias gl='git log --color=auto'
 alias gd='git diff --color=auto'
+alias ga='git add'
+alias gc='git commit'
+alias gcm='git commit -m'
 
 # Functions
 
