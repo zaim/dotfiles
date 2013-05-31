@@ -20,8 +20,13 @@ function bp_git_prompt() {
   fi
 }
 
+function bp_node_prompt() {
+  local ver=`node -v`
+  echo -n -e '\\[\e[00;32m\\]n'${ver:1} '\\[\e[00m\\]'
+}
+
 function bp_prompt() {
-  PS1="`bp_git_prompt`$_PS1"
+  PS1="`bp_git_prompt;bp_node_prompt`$_PS1"
 }
 
 PROMPT_COMMAND=bp_prompt
