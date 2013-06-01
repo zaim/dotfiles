@@ -3,15 +3,14 @@ set nocompatible
 " Pathogen
 call pathogen#infect()
 call pathogen#helptags()
- 
-set statusline=%<\ %n:%f\ %m%r%y%=%-35.(line:\ %l\ of\ %L,\ col:\ %c%V\ (%P)%)
+
 filetype plugin indent on
- 
 syntax on
+
+set statusline=%<\ %n:%f\ %m%r%y%=%-35.(line:\ %l\ of\ %L,\ col:\ %c%V\ (%P)%)
 set relativenumber
 set hlsearch
 set showmatch
-set autoindent
 set history=1000
 set cursorline
 set laststatus=2
@@ -19,6 +18,8 @@ set list
 set listchars=tab:▸·,trail:·
 set backspace=2
 
+" Indentation settings
+set autoindent
 set expandtab
 set shiftwidth=2
 set tabstop=4
