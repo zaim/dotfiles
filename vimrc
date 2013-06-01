@@ -15,6 +15,14 @@ set autoindent
 set history=1000
 set cursorline
 set laststatus=2
+set list
+set listchars=tab:▸·,trail:·
+set backspace=2
+
+set expandtab
+set shiftwidth=2
+set tabstop=4
+set softtabstop=2
 
 "if has("unnamedplus")
 "  set clipboard=unnamedplus
@@ -22,10 +30,15 @@ set laststatus=2
 "  set clipboard=unnamed
 "endif
 
-set expandtab
-set shiftwidth=2
-set tabstop=2
-set softtabstop=2
+" Chage cursor shape when enter/exit insert mode
+" https://gist.github.com/andyfowler/1195581
+if exists('$TMUX')
+  let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+  let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+else
+  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
 
 set background=dark
 colorscheme base16-ocean
