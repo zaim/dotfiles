@@ -30,6 +30,7 @@ alias gd='git diff --color=auto'
 alias ga='git add'
 alias gc='git commit'
 alias gcm='git commit -m'
+alias gp='git push'
 
 # Functions
 
