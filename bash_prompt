@@ -25,8 +25,12 @@ function bp_node_prompt() {
   echo -n -e '\\[\e[00;32m\\]n'${ver:1} '\\[\e[00m\\]'
 }
 
+function bp_cwd() {
+  echo -n -e '\\[\033]2;\w\033\\\\\\]'
+}
+
 function bp_prompt() {
-  PS1="`bp_git_prompt;bp_node_prompt`$_PS1"
+  PS1="`bp_cwd;bp_git_prompt;bp_node_prompt`$_PS1"
 }
 
 PROMPT_COMMAND=bp_prompt
