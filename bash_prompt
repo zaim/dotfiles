@@ -1,37 +1,61 @@
 
-_PS1=$PS1
+git_master_symbol='▪'
+color_cwd="\\[\033[36m\\]"
+color_git_clean="\\[\033[34m\\]"
+color_git_dirty="\\[\033[31m\\]"
+color_node_ver="\\[\033[32m\\]"
+color_virtualenv="\\[\033[33m\\]"
+reset="\\[\033[0m\\]"
 
-function bp_git_is_clean() {
+function _prompt_git_is_clean() {
   git diff --quiet --ignore-submodules HEAD 2>/dev/null
 }
 
-function bp_git_prompt() {
-  local branch="`git branch --no-color 2>/dev/null`" 
+function _prompt_git_status() {
+  local branch="`git branch --no-color 2>/dev/null`"
+  local color=$color_git_dirty
   if [ -n "$branch" ]; then
-    branch=${branch:1}
-    [[ "$branch" == " master" ]] && branch=''
-    branch="▪$branch "
-    if bp_git_is_clean; then
-      local ansi=32
-    else
-      local ansi=31
+    branch=${branch:2}
+    if [ "$branch" = "master" ]; then
+      branch=$git_master_symbol
     fi
-    echo -n -e '\\[\e[00;'${ansi}'m\\]'$branch'\\[\e[00m\\]'
+    if _prompt_git_is_clean; then
+      color=$color_git_clean
+    fi
+    echo -n -e "${color}${branch}${reset} "
   fi
 }
 
-function bp_node_prompt() {
+function _prompt_node_version() {
   local ver=`node -v`
-  echo -n -e '\\[\e[00;32m\\]n'${ver:1} '\\[\e[00m\\]'
+  ver=${ver#v}  # remove 'v'
+  ver=${ver%.*} # remove minor version
+  echo -n -e "${color_node_ver}n${ver}${reset} "
 }
 
-function bp_cwd() {
+function _prompt_title() {
   echo -n -e '\\[\033]2;\w\033\\\\\\]'
 }
 
-function bp_prompt() {
-  PS1="`bp_cwd;bp_git_prompt;bp_node_prompt`$_PS1"
+function _prompt_virtualenv() {
+  if [ -n "$VIRTUAL_ENV" ]; then
+    echo -n -e "${color_virtualenv}$(basename $VIRTUAL_ENV)${reset} "
+  fi
 }
 
-PROMPT_COMMAND=bp_prompt
+function _prompt_end() {
+  echo -n -e "${color_cwd}\w${reset}\n$ "
+}
+
+function _prompt_command() {
+  PS1=$(
+    _prompt_title
+    _prompt_node_version
+    _prompt_virtualenv
+    _prompt_git_status
+    _prompt_end
+  )
+}
+
+PROMPT_COMMAND=_prompt_command
 

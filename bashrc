@@ -12,16 +12,17 @@ fi
 [[ -f ~/.bash_aliases ]] && . ~/.bash_aliases
 
 # Paths
-PATH=/usr/local/share/npm/bin:~/.gem/ruby/1.8/bin:$PATH
-
-# Colors
-BLUE="\[\033[34m\]"
-CYAN="\[\033[36m\]"
-RESET="\[\033[0m\]"
+PATH=~/.gem/ruby/1.8/bin:/usr/local/share/npm/bin:/usr/local/share/python:$PATH
 
 # Prompt
-PS1="${CYAN}\w${RESET}\n$ "
+PS1="\w\n$ "
 [[ -f ~/.bash_prompt ]] && . ~/.bash_prompt
 
 # NVM
 [[ -f ~/Projects/nvm/nvm.sh ]] && . ~/Projects/nvm/nvm.sh
+
+# virtualenvwrapper
+export WORKON_HOME=~/.virtualenvs
+export PROJECT_HOME=~/Projects
+. /usr/local/share/python/virtualenvwrapper.sh
+
