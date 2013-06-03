@@ -2,7 +2,7 @@
 
 function linkfile () {
   srcfile=$1
-  dotfile=.$srcfile
+  dotfile=$2
   echo -n $dotfile -\> dotfiles/$srcfile \
     && [[ ! -e $dotfile ]] \
     && ln -s dotfiles/$srcfile $dotfile \
@@ -17,11 +17,17 @@ if [ ! -d dotfiles ]; then
   exit 1
 fi
 
+source dotfiles/install.config
+
 for f in dotfiles/*; do
   if [[ $f == *.md || $f == *install* || $f == .* ]]; then
     continue
   fi
   fn=$(basename $f)
-  linkfile $fn
+  ln=.$fn
+  if [[ $no_dot == *$fn* ]]; then
+    ln=$fn
+  fi
+  linkfile $fn $ln
 done
 

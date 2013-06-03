@@ -1,0 +1,20 @@
+#!/bin/sh
+
+bin=/usr/local/bin
+conf=/usr/local/etc/mongod.conf
+log=/usr/local/var/log/mongodb/mongo.log
+pid=$(cat /usr/local/var/mongodb/mongod.lock)
+
+if [ -n "$pid" ]; then
+  echo "mongod alrady started, switching to 'mongod' window"
+  tmux selectw -t mongod
+  exit
+fi
+
+tmux neww -t 0 -n mongod "clear; tail -f $log"
+tmux splitw -d "ulimit -n 1000 && $bin/mongod -f $conf"
+tmux swapp -D
+tmux resizep -t 1 -y 2
+tmux splitw -h "sleep 3; $bin/mongo"
+tmux movew -r
+

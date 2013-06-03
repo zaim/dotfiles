@@ -12,7 +12,7 @@ fi
 [[ -f ~/.bash_aliases ]] && . ~/.bash_aliases
 
 # Paths
-PATH=~/.gem/ruby/1.8/bin:/usr/local/share/npm/bin:/usr/local/share/python:$PATH
+PATH=~/bin:~/.gem/ruby/1.8/bin:/usr/local/share/npm/bin:/usr/local/share/python:$PATH
 
 # Prompt
 PS1="\w\n$ "
