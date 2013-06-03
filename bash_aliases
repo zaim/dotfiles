@@ -11,6 +11,7 @@ alias ll='ls -lh'
 alias lt='ls -lt'
 alias l='ls'
 alias mkdir='mkdir -pv'
+alias play='open -a /Applications/VLC.app $1'
 
 # Safety
 alias cp='cp -i'
