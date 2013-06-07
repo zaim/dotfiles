@@ -3,7 +3,7 @@
 [[ $- != *i* ]] && return
 
 # bash completion
-_prefix=`brew --prefix`
+_prefix='/usr/local'
 if [ -f ${_prefix}/etc/bash_completion ]; then
   . ${_prefix}/etc/bash_completion
 fi
