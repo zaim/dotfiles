@@ -12,7 +12,7 @@ if [ -n "$pid" ]; then
 fi
 
 tmux neww -t 0 -n mongod "clear; tail -f $log"
-tmux splitw -d "ulimit -n 1000 && $bin/mongod -f $conf"
+tmux splitw -d "ulimit -n 1000 && $bin/mongod -f $conf $@"
 tmux swapp -D
 tmux resizep -t 1 -y 2
 tmux splitw -h "sleep 3; $bin/mongo"

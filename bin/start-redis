@@ -1,0 +1,15 @@
+#!/bin/sh
+
+bin=/usr/local/bin
+conf=/usr/local/etc/redis.conf
+
+if tmux list-windows -F '#{window_name}' | grep 'redis'; then
+  echo "redis alrady started, switching to 'redis' window"
+  tmux selectw -t redis
+  exit
+fi
+
+tmux neww -t 0 -n redis "$bin/redis-server $conf"
+tmux splitw -h "sleep 3; $bin/redis-cli"
+tmux movew -r
+
