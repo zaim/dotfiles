@@ -40,3 +40,16 @@ function mkcd () {
   mkdir $1 && cd $1
 }
 
+# download $1 from the web
+# and save it in file $2
+function dl () {
+  curl -L -o $2 $1
+}
+
+# go to a project sub-dir
+function p () {
+  workon $1
+  [[ -n "$2" ]] && cd $2
+  clear
+}
+
