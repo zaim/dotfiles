@@ -17,6 +17,7 @@ set laststatus=2
 set list
 set listchars=tab:▸·,trail:·
 set backspace=2
+set colorcolumn=79
 
 " Indentation settings
 set autoindent
