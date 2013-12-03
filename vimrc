@@ -42,5 +42,14 @@ else
   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
 
+" Load go plugins
+" clear filetype flags before changing runtimepath to force Vim to reload
+" https://code.google.com/p/go/source/browse/misc/vim/readme.txt?name=release
+filetype off
+filetype plugin indent off
+set runtimepath+=$GOROOT/misc/vim
+filetype plugin indent on
+
 set background=dark
 colorscheme base16-ocean
+
