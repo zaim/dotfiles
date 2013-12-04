@@ -1,0 +1,52 @@
+#!/bin/bash
+
+
+# Customizable variables
+# ----------------------
+
+# The version of docker to use:
+DOCKER_VERSION=${DOCKER_VERSION:-0.7.0}
+
+# The path to put docker's Vagrantfile in:
+DOCKER_ROOT=${DOCKER_ROOT:-$HOME/.docker}
+
+# The github repo to use:
+GITHUB_REPO=${GITHUB_REPO:-dotcloud/docker}
+
+# Docker's Vagrantfile settings
+export BOX_NAME=precise64
+export FORWARD_DOCKER_PORTS=1
+
+
+# Functions
+# ---------
+
+download_vagrantfile() {
+  _url="https://raw.github.com/${GITHUB_REPO}/v${DOCKER_VERSION}/Vagrantfile"
+  echo "Downloading Vagrantfile" >&2
+  echo "$_url" >&2
+  echo "$DOCKER_VERSION" > "$DOCKER_ROOT/VERSION"
+  curl -sS "$_url" > "$DOCKER_ROOT/Vagrantfile"
+}
+
+
+# Main program
+# ------------
+
+if [ ! -d "$DOCKER_ROOT" ]; then
+  mkdir "$DOCKER_ROOT"
+fi
+
+if [ ! -f $DOCKER_ROOT/Vagrantfile ]; then
+  download_vagrantfile
+else
+  # Check if a different Vagrantfile version from DOCKER_VERSION is used
+  _current=`cat "$DOCKER_ROOT/VERSION"`
+  if [ "$_current" != "$DOCKER_VERSION" ]; then
+    download_vagrantfile
+  fi
+fi
+
+cd "$DOCKER_ROOT"
+eval vagrant $@
+
