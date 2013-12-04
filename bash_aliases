@@ -39,6 +39,9 @@ alias gp='git push'
 alias dev_appserver=dev_appserver.py
 alias appcfg=appcfg.py
 
+# docker-vagrant
+alias dv=docker-vagrant
+
 # Functions
 
 # mkdir and cd to it

@@ -37,7 +37,11 @@ export PROJECT_HOME=~/Projects
 . /usr/local/bin/virtualenvwrapper.sh
 
 # GO
-export GOROOT=/usr/local/opt/go
+export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=~/Projects/go
 PATH=$PATH:$GOPATH/bin
+
+# Vagrant/Docker
+export BOX_NAME=precise64
+export FORWARD_DOCKER_PORTS=1
 
