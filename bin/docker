@@ -1,0 +1,107 @@
+#!/bin/bash
+
+
+# Customizable variables
+# ----------------------
+
+# The version of docker to use:
+DOCKER_VERSION=${DOCKER_VERSION:-0.7.0}
+
+# The path to put docker's Vagrantfile in:
+DOCKER_ROOT=${DOCKER_ROOT:-$HOME/.docker}
+
+# The github repo to use:
+GITHUB_REPO=${GITHUB_REPO:-dotcloud/docker}
+
+# Docker's Vagrantfile settings
+export BOX_NAME=precise64
+export FORWARD_DOCKER_PORTS=1
+
+# Vagrant projects file
+VAGRANT_PROJECTS_FILE=${VAGRANT_PROJECTS_FILE:-$HOME/.vagrant.d/projects}
+
+
+# Functions
+# ---------
+
+_current_dir="$PWD"
+
+download_vagrantfile() {
+  _url="https://raw.github.com/${GITHUB_REPO}/v${DOCKER_VERSION}/Vagrantfile"
+  echo "Downloading Vagrantfile" >&2
+  echo "$_url" >&2
+  echo "$DOCKER_VERSION" > "$DOCKER_ROOT/VERSION"
+  curl -sS "$_url" > "$DOCKER_ROOT/Vagrantfile"
+}
+
+docker_build() {
+  # NOTE: the awk command below won't work if there is a space in the path
+  name_map=$(awk '{print $1 ":" $2}' "$VAGRANT_PROJECTS_FILE")
+  build_ok=0
+
+  for np in $name_map; do
+    ar=(${np//:/ })
+    name="${ar[0]}"
+    path="${ar[1]}"
+    if [ "$path" = "$_current_dir" ]; then
+      build_ok=1
+      break
+    fi
+  done
+
+  if [ "$build_ok" = 1 ]; then
+    echo
+    echo "> Current directory is a synced folder in the Docker VM."
+    echo "> The Dockerfile is printed below..."
+    echo
+    vagrant ssh -c "cd /projects/$name && cat Dockerfile"
+    echo
+    echo "> Command: docker build $@"
+    echo -n "> Continue? [yN] "
+    read -n 1 yn
+    case "$yn" in
+      y|Y)
+        echo BUILD
+    esac
+    echo
+  else
+    echo Current directory \"$_current_dir\" is not synced in VM.
+    echo Add an entry for it in \"$VAGRANT_PROJECTS_FILE\"
+  fi
+}
+
+
+# Main program
+# ------------
+
+if [ ! -d "$DOCKER_ROOT" ]; then
+  mkdir "$DOCKER_ROOT"
+fi
+
+if [ ! -f $DOCKER_ROOT/Vagrantfile ]; then
+  download_vagrantfile
+else
+  # Check if a different Vagrantfile version from DOCKER_VERSION is used
+  _current=`cat "$DOCKER_ROOT/VERSION"`
+  if [ "$_current" != "$DOCKER_VERSION" ]; then
+    download_vagrantfile
+  fi
+fi
+
+
+cd "$DOCKER_ROOT"
+
+case "$1" in
+  "v"|"vagrant")
+    shift
+    vagrant $@
+    ;;
+  "build")
+    shift
+    docker_build $@
+    ;;
+  *)
+    vagrant ssh -c "docker $@"
+    ;;
+esac
+
