@@ -119,7 +119,7 @@ vagrant_run() {
 # Run a command inside the Docker VM
 vagrant_ssh() {
   cd "$DOCKER_ROOT"
-  eval "vagrant ssh -c '$@'"
+  eval "vagrant ssh -c '$@' -- -t"
 }
 
 # Override the "docker build [...]" command to run via ssh in a shared
@@ -153,36 +153,40 @@ docker_build() {
 
   if [ "$build_ok" = 1 ]; then
     echo
-    echo "> Current directory is a Dockerfile project."
-    echo "> The Dockerfile is printed below..."
+    echo "Current directory is a Dockerfile project."
+    echo "The Dockerfile is printed below..."
     echo
     cmd="[ -d $share_dir ]"
     cmd="$cmd && cd $share_dir"
     cmd="$cmd && cat Dockerfile"
     cmd="$cmd || echo \"! ERROR: directory not shared.\""
     res=$(vagrant_ssh "$cmd")
-    echo "$res"
     if [ "${res:0:1}" = "!" ]; then
+      echo "${res:1}"
       echo
-      echo "> Reload the Docker VM to update shared folders:"
-      echo "> $ $SCRIPT reload"
+      echo "Reload the Docker VM to update shared folders:"
+      echo "$ $SCRIPT reload"
       echo
       exit 1
+    else
+      echo "$res" | awk '{print "> "$0}'
     fi
     echo
-    echo "> Command: docker build $@"
-    echo -n "> Continue? [yN] "
+    echo "Command: docker build . $@"
+    echo -n "Continue? [yN] "
     read -n 1 yn
     case "$yn" in
       y|Y)
-        cmd="cd $share_dir && docker build $@"
+        echo
+        echo
+        cmd="cd $share_dir && docker build . $@"
         vagrant_ssh "$cmd"
     esac
     echo
   else
     echo
-    echo "> Current directory \"$curr_dir\" is not added as a Dockerfile project."
-    echo "> Add it via \"$SCRIPT project add\" first."
+    echo "Current directory \"$curr_dir\" is not added as a Dockerfile project."
+    echo "Add it via \"$SCRIPT project add\" first."
     echo
   fi
 }
