@@ -64,8 +64,6 @@ EOF
 # Functions
 # ---------
 
-_current_dir="$PWD"
-
 # Initialize the $DOCKER_ROOT directory with default files
 init_home() {
   if [ ! -d "$DOCKER_ROOT" ]; then
