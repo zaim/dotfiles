@@ -61,6 +61,7 @@ docker_build() {
     read -n 1 yn
     case "$yn" in
       y|Y)
+        # TODO: run docker build
         echo BUILD
     esac
     echo
@@ -82,7 +83,7 @@ if [ ! -f $DOCKER_ROOT/Vagrantfile ]; then
   download_vagrantfile
 else
   # Check if a different Vagrantfile version from DOCKER_VERSION is used
-  _current=`cat "$DOCKER_ROOT/VERSION"`
+  _current=`cat "$DOCKER_ROOT/VERSION" 2>/dev/null`
   if [ "$_current" != "$DOCKER_VERSION" ]; then
     download_vagrantfile
   fi
