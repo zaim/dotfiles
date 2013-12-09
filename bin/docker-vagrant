@@ -113,7 +113,13 @@ init_download() {
 # Run a vagrant command inside $DOCKER_ROOT
 vagrant_run() {
   cd "$DOCKER_ROOT"
-  vagrant "$@"
+  eval "vagrant $@"
+}
+
+# Run a command inside the Docker VM
+vagrant_ssh() {
+  cd "$DOCKER_ROOT"
+  eval "vagrant ssh -c '$@'"
 }
 
 # Override the "docker build [...]" command to run via ssh in a shared
@@ -154,7 +160,7 @@ docker_build() {
     cmd="$cmd && cd $share_dir"
     cmd="$cmd && cat Dockerfile"
     cmd="$cmd || echo \"! ERROR: directory not shared.\""
-    res=$(vagrant_run ssh -c "$cmd")
+    res=$(vagrant_ssh "$cmd")
     echo "$res"
     if [ "${res:0:1}" = "!" ]; then
       echo
@@ -170,7 +176,7 @@ docker_build() {
     case "$yn" in
       y|Y)
         cmd="cd $share_dir && docker build $@"
-        vagrant_run ssh -c "$cmd"
+        vagrant_ssh "$cmd"
     esac
     echo
   else
@@ -328,7 +334,7 @@ case "$1" in
     docker_build $@
     ;;
   *)
-    vagrant_run ssh -c "docker $@"
+    vagrant_ssh "docker $@"
     ;;
 esac
 
