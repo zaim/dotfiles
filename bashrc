@@ -41,3 +41,7 @@ export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=~/Projects/go
 PATH=$PATH:$GOPATH/bin
 
+# Docker/Vagrant
+export FORWARD_DOCKER_PORTS=1
+export BOX_NAME=precise64
+
