@@ -170,14 +170,14 @@ docker_build() {
       echo "$res" | awk '{print "> "$0}'
     fi
     echo
-    echo "Command: docker build . $@"
+    cmd="cd $share_dir && docker build $@ ."
+    echo "Command: \"$cmd\""
     echo -n "Continue? [yN] "
     read -n 1 yn
     case "$yn" in
       y|Y)
         echo
         echo
-        cmd="cd $share_dir && docker build . $@"
         vagrant_ssh "$cmd"
     esac
     echo
