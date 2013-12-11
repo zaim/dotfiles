@@ -192,7 +192,7 @@ docker_build() {
 docker_project() {
   cmd=""
   case "$1" in
-    list|add|remove)
+    list|add|remove|show)
       cmd=$1
       ;;
     "")
@@ -286,6 +286,28 @@ docker_project_remove() {
 
   if [ -n "$removed_name" ]; then
     echo "Removed \"$removed_name\" ($removed_path)"
+  fi
+}
+
+docker_project_show() {
+  proj_name="$1"
+  is_a_proj=0
+
+  for np in $(cat "$DOCKER_PROJECTS_FILE" 2>/dev/null); do
+    ar=(${np//=/ })
+    name="${ar[0]}"
+    path="${ar[1]}"
+    if [ "$name" = "$proj_name" ]; then
+      cat "$path/Dockerfile" && is_a_proj=1 || echo "No Dockerfile at $path"
+      break
+    fi
+  done
+
+  if [ "$is_a_proj" = "0" ]; then
+    if [ -f "$DOCKER_ROOT/Dockerfiles/$proj_name/Dockerfile" ]; then
+      cat "$DOCKER_ROOT/Dockerfiles/$proj_name/Dockerfile"
+      return
+    fi
   fi
 }
 
