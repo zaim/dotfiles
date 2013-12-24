@@ -22,18 +22,24 @@ DOCKER_PROJECTS_FILE=${DOCKER_PROJECTS_FILE:-$DOCKER_ROOT/projects}
 # Vagrantfile Templates
 # ---------------------
 
-# Vagrant initializations/setup that imports Docker's official Vagrantfile 
+# Vagrant initializations/setup that imports Docker's official Vagrantfile
 # and add Dockerfile projects to the VM as shared folders
 read -r -d '' VAGRANTFILE_SETUP_TEMPLATE <<'EOF'
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-require './vagrantfile_docker'
+require './VagrantfileDocker'
 
 DOCKER_ROOT   = ENV.fetch("DOCKER_ROOT", "#{ENV['HOME']}/.docker")
 PROJECTS_FILE = ENV.fetch("DOCKER_PROJECTS_FILE", "#{DOCKER_ROOT}/projects")
+PRIVATE_IP    = ENV.fetch("DOCKER_PRIVATE_IP", "192.168.33.5")
 
 Vagrant.configure("2") do |config|
+  # Enable private IP
+  if !PRIVATE_IP.nil? and PRIVATE_IP.strip != ""
+    config.vm.network "private_network", ip: PRIVATE_IP
+  end
+
   # Add globally shared project folders
   if !PROJECTS_FILE.nil? and File.exists?(PROJECTS_FILE)
     file = File.open(PROJECTS_FILE, "r")
@@ -50,16 +56,6 @@ Vagrant.configure("2") do |config|
 end
 EOF
 
-# The actual, user-customizable Vagrantfile. It imports the above setup file
-read -r -d '' VAGRANTFILE_USER_TEMPLATE <<'EOF'
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-require './vagrantfile_setup'
-
-# Add custom configurations here
-EOF
-
 
 # Functions
 # ---------
@@ -71,14 +67,9 @@ init_home() {
     mkdir "$DOCKER_ROOT"
   fi
 
-  if [ ! -f "$DOCKER_ROOT/vagrantfile_setup.rb" ]; then
-    echo "[setup] Creating vagrantfile_setup.rb"
-    echo "$VAGRANTFILE_SETUP_TEMPLATE" > "$DOCKER_ROOT/vagrantfile_setup.rb"
-  fi
-
   if [ ! -f "$DOCKER_ROOT/Vagrantfile" ]; then
-    echo "[setup] Creating user Vagrantfile"
-    echo "$VAGRANTFILE_USER_TEMPLATE" > "$DOCKER_ROOT/Vagrantfile"
+    echo "[setup] Creating vagrantfile_setup.rb"
+    echo "$VAGRANTFILE_SETUP_TEMPLATE" > "$DOCKER_ROOT/Vagrantfile"
   fi
 
   if [ ! -d "$DOCKER_ROOT/Dockerfiles" ]; then
@@ -86,7 +77,7 @@ init_home() {
     mkdir -p "$DOCKER_ROOT/Dockerfiles"
   fi
 
-  if [ ! -f "$DOCKER_ROOT/vagrantfile_docker.rb" ]; then
+  if [ ! -f "$DOCKER_ROOT/VagrantfileDocker.rb" ]; then
     init_download
   else
     # Check if a different Vagrantfile version from DOCKER_VERSION is used
@@ -102,7 +93,7 @@ init_download() {
   _url="https://raw.github.com/$GITHUB_REPO/Vagrantfile"
   echo "[setup] Downloading Vagrantfile from $GITHUB_REPO"
   echo "$DOCKER_VERSION" > "$DOCKER_ROOT/VERSION"
-  curl -sS "$_url" > "$DOCKER_ROOT/vagrantfile_docker.rb"
+  curl -sS "$_url" > "$DOCKER_ROOT/VagrantfileDocker.rb"
   echo "[setup] Run '$SCRIPT up' to start the VM"
   echo
   exit
