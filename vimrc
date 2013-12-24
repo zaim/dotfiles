@@ -42,6 +42,10 @@ else
   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
 
+" Interface settings
+set background=dark
+colorscheme base16-ocean
+
 " Load go plugins
 " clear filetype flags before changing runtimepath to force Vim to reload
 " https://code.google.com/p/go/source/browse/misc/vim/readme.txt?name=release
@@ -50,6 +54,9 @@ filetype plugin indent off
 set runtimepath+=$GOROOT/misc/vim
 filetype plugin indent on
 
-set background=dark
-colorscheme base16-ocean
+" Syntastic settings
+let g:syntastic_python_checkers = ['flake8']
 
+" Backup and swap directories
+set backupdir=~/.tmp/backup,~/.tmp,.
+set directory=~/.tmp/swap//,~/.tmp,.
