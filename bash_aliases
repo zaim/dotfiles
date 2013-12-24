@@ -26,14 +26,16 @@ alias tmk='tmux kill-session'
 
 # git
 alias g='git'
+alias gb='git branch'
 alias gs='git status'
 alias gl='git log --color=auto'
 alias gd='git diff --color=auto'
 alias ga='git add'
 alias gc='git commit'
+alias gch='git checkout'
 alias gcm='git commit -m'
-alias gca='git commit -a -m'
-alias gp='git push'
+alias gca='git commit -a'
+alias gcam='git commit -a -m'
 
 # AppEngine
 alias dev_appserver=dev_appserver.py

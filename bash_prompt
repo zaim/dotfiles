@@ -12,7 +12,7 @@ function _prompt_git_is_clean() {
 }
 
 function _prompt_git_status() {
-  local branch="`git branch --no-color 2>/dev/null`"
+  local branch="`git branch --no-color 2>/dev/null | grep '^*'`"
   local color=$color_git_dirty
   if [ -n "$branch" ]; then
     branch=${branch:2}
