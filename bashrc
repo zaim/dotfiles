@@ -41,7 +41,12 @@ export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=~/Projects/go
 PATH=$PATH:$GOPATH/bin
 
+# Ansible
+export ANSIBLE_INVENTORY="/usr/local/etc/ansible/hosts"
+[[ -d "$PROJECT_HOME/ansible" ]] && \
+  source "$PROJECT_HOME/ansible/hacking/env-setup" -q
+
 # Docker/Vagrant
-export FORWARD_DOCKER_PORTS=1
-export BOX_NAME=precise64
+#export FORWARD_DOCKER_PORTS=1
+#export BOX_NAME=precise64
 
