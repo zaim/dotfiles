@@ -50,3 +50,5 @@ export ANSIBLE_INVENTORY="/usr/local/etc/ansible/hosts"
 #export FORWARD_DOCKER_PORTS=1
 #export BOX_NAME=precise64
 
+# GitHub
+export GITHUB_USER=zaim
