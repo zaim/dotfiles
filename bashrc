@@ -8,9 +8,6 @@ if [ -f ${_prefix}/etc/bash_completion ]; then
   . ${_prefix}/etc/bash_completion
 fi
 
-# Load aliases
-[[ -f ~/.bash_aliases ]] && . ~/.bash_aliases
-
 # Paths
 PATH=$PATH:"/Applications/Android Studio.app/sdk/tools"
 PATH=$PATH:"/Applications/Android Studio.app/sdk/platform-tools"
@@ -47,8 +44,13 @@ export ANSIBLE_INVENTORY="/usr/local/etc/ansible/hosts"
   source "$PROJECT_HOME/ansible/hacking/env-setup" -q
 
 # Docker/Vagrant
-#export FORWARD_DOCKER_PORTS=1
-#export BOX_NAME=precise64
+export DOCKER_PRIVATE_IP=192.168.33.10
+export DOCKER_SYNCED_FOLDERS="$HOME/Projects=/projects"
+export DOCKER_HOST="tcp://${DOCKER_PRIVATE_IP}:4243"
+[[ -d ~/.docker/bin ]] && PATH=$PATH:~/.docker/bin
 
 # GitHub
 export GITHUB_USER=zaim
+
+# Load aliases
+[[ -f ~/.bash_aliases ]] && . ~/.bash_aliases

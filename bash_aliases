@@ -41,9 +41,6 @@ alias gcam='git commit -a -m'
 alias dev_appserver=dev_appserver.py
 alias appcfg=appcfg.py
 
-# docker-vagrant
-alias docker='docker-vagrant'
-
 # Functions
 
 # mkdir and cd to it
