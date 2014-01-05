@@ -1,355 +1,38 @@
 #!/usr/bin/env bash
 
+set -e
+
 SCRIPT=$(basename $0)
 
+DOCKER_ROOT="${DOCKER_ROOT:-$HOME/.docker}"
+export VAGRANT_CWD="$DOCKER_ROOT"
 
-# Customizable variables
-# ----------------------
+if [ ! -d "${DOCKER_ROOT}" ]; then
+  echo "Docker root directory ${DOCKER_ROOT} does not exist."
+  exit 1
+fi
 
-# The path to put the Vagrantfile and other config files at:
-DOCKER_ROOT=${DOCKER_ROOT:-$HOME/.docker}
+if [ ! -f "${DOCKER_ROOT}/Vagrantfile" ]; then
+  echo "${DOCKER_ROOT}/Vagrantfile does not exist."
+  exit 1
+fi
 
-# The version of docker to get the official Vagrantfile from:
-DOCKER_VERSION=${DOCKER_VERSION:-0.7.1}
-
-# The github repo to use to get the official Vagrantfile from:
-GITHUB_REPO=${GITHUB_REPO:-dotcloud/docker/v$DOCKER_VERSION}
-
-# Dockerfile projects index file:
-DOCKER_PROJECTS_FILE=${DOCKER_PROJECTS_FILE:-$DOCKER_ROOT/projects}
-
-
-# Vagrantfile Templates
-# ---------------------
-
-# Vagrant initializations/setup that imports Docker's official Vagrantfile
-# and add Dockerfile projects to the VM as shared folders
-read -r -d '' VAGRANTFILE_SETUP_TEMPLATE <<'EOF'
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-require './VagrantfileDocker'
-
-DOCKER_ROOT   = ENV.fetch("DOCKER_ROOT", "#{ENV['HOME']}/.docker")
-PROJECTS_FILE = ENV.fetch("DOCKER_PROJECTS_FILE", "#{DOCKER_ROOT}/projects")
-PRIVATE_IP    = ENV.fetch("DOCKER_PRIVATE_IP", "192.168.33.5")
-
-Vagrant.configure("2") do |config|
-  # Enable private IP
-  if !PRIVATE_IP.nil? and PRIVATE_IP.strip != ""
-    config.vm.network "private_network", ip: PRIVATE_IP
-  end
-
-  # Add globally shared project folders
-  if !PROJECTS_FILE.nil? and File.exists?(PROJECTS_FILE)
-    file = File.open(PROJECTS_FILE, "r")
-    file.each do |line|
-      name, path = line.split("=", 2)
-      name.strip!
-      path.strip!
-      if Dir.exists?(path)
-        config.vm.synced_folder(path, "/projects/#{name}")
-      end
-    end
-    file.close()
-  end
-end
-EOF
-
-
-# Functions
-# ---------
-
-# Initialize the $DOCKER_ROOT directory with default files
-init_home() {
-  if [ ! -d "$DOCKER_ROOT" ]; then
-    echo "[setup] Creating $DOCKER_ROOT"
-    mkdir "$DOCKER_ROOT"
-  fi
-
-  if [ ! -f "$DOCKER_ROOT/Vagrantfile" ]; then
-    echo "[setup] Creating vagrantfile_setup.rb"
-    echo "$VAGRANTFILE_SETUP_TEMPLATE" > "$DOCKER_ROOT/Vagrantfile"
-  fi
-
-  if [ ! -d "$DOCKER_ROOT/Dockerfiles" ]; then
-    echo "[setup] Creating Dockerfiles directory"
-    mkdir -p "$DOCKER_ROOT/Dockerfiles"
-  fi
-
-  if [ ! -f "$DOCKER_ROOT/VagrantfileDocker.rb" ]; then
-    init_download
-  else
-    # Check if a different Vagrantfile version from DOCKER_VERSION is used
-    _current=`cat "$DOCKER_ROOT/VERSION" 2>/dev/null`
-    if [ "$_current" != "$DOCKER_VERSION" ]; then
-      init_download
-    fi
-  fi
-}
-
-# Download Docker's official Vagrantfile
-init_download() {
-  _url="https://raw.github.com/$GITHUB_REPO/Vagrantfile"
-  echo "[setup] Downloading Vagrantfile from $GITHUB_REPO"
-  echo "$DOCKER_VERSION" > "$DOCKER_ROOT/VERSION"
-  curl -sS "$_url" > "$DOCKER_ROOT/VagrantfileDocker.rb"
-  echo "[setup] Run '$SCRIPT up' to start the VM"
-  echo
-  exit
-}
-
-# Run a vagrant command inside $DOCKER_ROOT
-vagrant_run() {
-  cd "$DOCKER_ROOT"
-  eval "vagrant $@"
-}
-
-# Run a command inside the Docker VM
-vagrant_ssh() {
-  cd "$DOCKER_ROOT"
-  eval "vagrant ssh -c '$@' -- -t"
-}
-
-# Override the "docker build [...]" command to run via ssh in a shared
-# Dockerfile project directory
-docker_build() {
-  if [ ! -f "Dockerfile" ]; then
-    echo "No Dockerfile found."
-    exit 1
-  fi
-
-  curr_dir="$PWD"
-  parent=$(dirname "$curr_dir")
-  build_ok=0
-  share_dir=
-
-  if [ "$parent" = "$DOCKER_ROOT/Dockerfiles" ]; then
-    build_ok=1
-    share_dir="/vagrant/Dockerfiles/$(basename $curr_dir)"
-  else
-    for np in $(cat "$DOCKER_PROJECTS_FILE" 2>/dev/null); do
-      ar=(${np//=/ })
-      name="${ar[0]}"
-      path="${ar[1]}"
-      if [ "$path" = "$curr_dir" ]; then
-        build_ok=1
-        share_dir="/projects/$name"
-        break
-      fi
-    done
-  fi
-
-  if [ "$build_ok" = 1 ]; then
-    echo
-    echo "Current directory is a Dockerfile project."
-    echo "The Dockerfile is printed below..."
-    echo
-    cmd="[ -d $share_dir ]"
-    cmd="$cmd && cd $share_dir"
-    cmd="$cmd && cat Dockerfile"
-    cmd="$cmd || echo \"! ERROR: directory not shared.\""
-    res=$(vagrant_ssh "$cmd")
-    if [ "${res:0:1}" = "!" ]; then
-      echo "${res:1}"
-      echo
-      echo "Reload the Docker VM to update shared folders:"
-      echo "$ $SCRIPT reload"
-      echo
-      exit 1
-    else
-      echo "$res" | awk '{print "> "$0}'
-    fi
-    echo
-    cmd="cd $share_dir && docker build $@ ."
-    echo "Command: \"$cmd\""
-    echo -n "Continue? [yN] "
-    read -n 1 yn
-    case "$yn" in
-      y|Y)
-        echo
-        echo
-        vagrant_ssh "$cmd"
-    esac
-    echo
-  else
-    echo
-    echo "Current directory \"$curr_dir\" is not added as a Dockerfile project."
-    echo "Add it via \"$SCRIPT project add\" first."
-    echo
-  fi
-}
-
-docker_project() {
-  cmd=""
-  case "$1" in
-    list|add|remove|show)
-      cmd=$1
-      ;;
-    "")
-      cmd=list
-      ;;
-    rm)
-      cmd=remove
-      ;;
-  esac
-  if [ -n "$cmd" ]; then
-    shift
-    docker_project_$cmd $@
-  else
-    print_usage
-  fi
-}
-
-docker_project_list() {
-  for n in $DOCKER_ROOT/Dockerfiles/*; do
-    echo /vagrant/Dockerfiles/$(basename "$n") -\> $n
-  done
-  for np in $(cat "$DOCKER_PROJECTS_FILE" 2>/dev/null); do
-    ar=(${np//=/ })
-    name="${ar[0]}"
-    path="${ar[1]}"
-    echo /projects/$name -\> $path
-  done
-}
-
-docker_project_add() {
-  proj_dir="$1"
-  proj_name="$2"
-
-  if [ -z "$proj_dir" ]; then
-    proj_dir=.
-  fi
-
-  proj_dir=$(cd "$proj_dir" && pwd)
-
-  if [ -z "$proj_name" ]; then
-    proj_name=$(basename "$proj_dir")
-  fi
-
-  for np in $(cat "$DOCKER_PROJECTS_FILE" 2>/dev/null); do
-    ar=(${np//=/ })
-    name="${ar[0]}"
-    path="${ar[1]}"
-    if [ "$name" = "$proj_name" ]; then
-      echo "Project \"$name\" already exists at \"$path\""
-      exit 1
-    fi
-    if [ "$path" = "$proj_dir" ]; then
-      echo "Project path \"$path\" already exists as \"$name\""
-      exit 1
-    fi
-  done
-
-  echo "Added Dockerfile project $proj_dir as $proj_name"
-  echo "${proj_name}=${proj_dir}" >> "$DOCKER_PROJECTS_FILE"
-  echo "Run \"$SCRIPT reload\" to update shared folders"
-}
-
-docker_project_remove() {
-  curr_dir="$PWD"
-  proj_list=$(cat "$DOCKER_PROJECTS_FILE" 2>/dev/null)
-  proj_name="$1"
-  removed_name=
-  removed_path=
-
-  echo -n "" > "$DOCKER_PROJECTS_FILE"
-
-  for np in $proj_list; do
-    ar=(${np//=/ })
-    name="${ar[0]}"
-    path="${ar[1]}"
-    if [ -n "$proj_name" ]; then
-      if [ "$proj_name" = "$name" ]; then
-        removed_name="$name"
-        removed_path="$path"
-        continue
-      fi
-    else
-      if [ "$path" = "$curr_dir" ]; then
-        removed_name="$name"
-        removed_path="$path"
-        continue
-      fi
-    fi
-    echo "${name}=${path}" >> "$DOCKER_PROJECTS_FILE"
-  done
-
-  if [ -n "$removed_name" ]; then
-    echo "Removed \"$removed_name\" ($removed_path)"
-  fi
-}
-
-docker_project_show() {
-  proj_name="$1"
-  is_a_proj=0
-
-  for np in $(cat "$DOCKER_PROJECTS_FILE" 2>/dev/null); do
-    ar=(${np//=/ })
-    name="${ar[0]}"
-    path="${ar[1]}"
-    if [ "$name" = "$proj_name" ]; then
-      cat "$path/Dockerfile" && is_a_proj=1 || echo "No Dockerfile at $path"
-      break
-    fi
-  done
-
-  if [ "$is_a_proj" = "0" ]; then
-    if [ -f "$DOCKER_ROOT/Dockerfiles/$proj_name/Dockerfile" ]; then
-      cat "$DOCKER_ROOT/Dockerfiles/$proj_name/Dockerfile"
-      return
-    fi
-  fi
-}
-
+# Print help
 print_usage() {
-  echo "Usage: $SCRIPT [-v] [-h] command [<args>]"
+  vagrant help
   echo
-  echo "    -v, --version        Print Docker version."
-  echo "    -h, --help           Print this help."
-  echo
-  echo "Available Vagrant commands:"
-  echo "    halt"
-  echo "    reload"
-  echo "    resume"
-  echo "    ssh"
-  echo "    ssh-config"
-  echo "    status"
-  echo "    suspend"
-  echo "    up"
-  echo
-  echo "Dockerfile project commands:"
-  echo "    project list"
-  echo "    project add"
-  echo "    project remove"
-  echo
-  echo "Any arguments other than above will be used as Docker commands."
+  echo "Environment info:"
+  echo "    VAGRANT_CWD = $VAGRANT_CWD"
+  echo "    DOCKER_HOST = $DOCKER_HOST"
   echo
 }
 
-
-# Main program
-# ------------
-
-init_home >&2
 
 case "$1" in
-  ""|-h|--help)
+  ""|-h|--help|help)
     print_usage
     ;;
-  halt|reload|resume|ssh|ssh-config|status|suspend|up)
-    vagrant_run $@
-    ;;
-  project|projects)
-    shift
-    docker_project $@
-    ;;
-  build)
-    shift
-    docker_build $@
-    ;;
   *)
-    vagrant_ssh "docker $@"
+    vagrant $@
     ;;
 esac
-
