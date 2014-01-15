@@ -33,6 +33,6 @@ case "$1" in
     print_usage
     ;;
   *)
-    vagrant $@
+    vagrant "$@"
     ;;
 esac
