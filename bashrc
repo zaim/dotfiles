@@ -52,5 +52,8 @@ export DOCKER_HOST="tcp://${DOCKER_PRIVATE_IP}:4243"
 # GitHub
 export GITHUB_USER=zaim
 
+# dircolors
+eval `gdircolors ~/.dir_colors`
+
 # Load aliases
 [[ -f ~/.bash_aliases ]] && . ~/.bash_aliases

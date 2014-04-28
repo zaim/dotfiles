@@ -5,11 +5,6 @@ alias cd..='cd ..'
 alias cdp='cdproject'
 alias cls='clear'
 alias df='df -H'
-alias ls='ls -G'
-alias la='ls -lA'
-alias ll='ls -lh'
-alias lt='ls -lt'
-alias l='ls'
 alias mkdir='mkdir -pv'
 alias play='open -a /Applications/VLC.app $1'
 alias m=make
@@ -36,6 +31,13 @@ alias gch='git checkout'
 alias gcm='git commit -m'
 alias gca='git commit -a'
 alias gcam='git commit -a -m'
+alias gsedit='git status --porcelain | sed "s/^.[A-Z].//" | xargs -o vim -p'
+
+# GNU coreutils (from homebrew)
+alias ls='gls --color --group-directories-first -p'
+alias la='ls -lA'
+alias ll='ls -lh'
+alias lt='ls -lt'
 
 # AppEngine
 alias dev_appserver=dev_appserver.py
