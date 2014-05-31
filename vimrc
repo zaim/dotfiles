@@ -15,7 +15,7 @@ set history=1000
 set cursorline
 set laststatus=2
 set list
-set listchars=tab:▸·,trail:·
+set listchars=tab:▸\ ,trail:·
 set backspace=2
 set colorcolumn=79
 
@@ -56,6 +56,7 @@ filetype plugin indent on
 
 " Syntastic settings
 let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_javascript_checkers = ['jsxhint']
 
 " Backup and swap directories
 set backupdir=~/.tmp/backup,~/.tmp,.
