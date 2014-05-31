@@ -31,13 +31,13 @@ alias gch='git checkout'
 alias gcm='git commit -m'
 alias gca='git commit -a'
 alias gcam='git commit -a -m'
-alias gsedit='git status --porcelain | sed "s/^.[A-Z].//" | xargs -o vim -p'
+alias gsedit='git status --porcelain | sed "s/^.[A-Z\?].//" | xargs -o vim -p'
 
 # GNU coreutils (from homebrew)
 alias ls='gls --color --group-directories-first -p'
-alias la='ls -lA'
+alias la='ls -lhA'
 alias ll='ls -lh'
-alias lt='ls -lt'
+alias lt='ls -lht'
 
 # AppEngine
 alias dev_appserver=dev_appserver.py
