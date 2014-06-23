@@ -34,10 +34,11 @@ alias gcam='git commit -a -m'
 alias gsedit='git status --porcelain | sed "s/^.[A-Z\?].//" | xargs -o vim -p'
 
 # GNU coreutils (from homebrew)
-alias ls='gls --color --group-directories-first -p'
-alias la='ls -lhA'
-alias ll='ls -lh'
-alias lt='ls -lht'
+alias ls='gls --color --group-directories-first -h'
+alias ll='ls -l'
+alias la='ls -lA'
+alias lt='ls -lt'
+alias lj='ll --hide="node_modules" --hide="bower_components"'
 
 # AppEngine
 alias dev_appserver=dev_appserver.py
