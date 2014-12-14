@@ -47,6 +47,9 @@ alias appcfg=appcfg.py
 # docker-vagrant
 alias dockerv=docker-vagrant
 
+# ack
+alias acki='ack -i'
+
 # Functions
 
 # mkdir and cd to it
