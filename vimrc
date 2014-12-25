@@ -62,3 +62,6 @@ let g:syntastic_html_checkers = ['validator']
 " Backup and swap directories
 set backupdir=~/.tmp/backup,~/.tmp,.
 set directory=~/.tmp/swap//,~/.tmp,.
+
+" Set leader key
+let mapleader = ","
