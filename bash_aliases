@@ -20,22 +20,24 @@ alias tml='tmux list-sessions'
 alias tmk='tmux kill-session'
 
 # git
-alias g='git'
-alias gb='git branch'
-alias gs='git status'
-alias gl='git log --color=auto'
-alias gd='git diff --color=auto'
-alias ga='git add'
-alias gc='git commit'
-alias gch='git checkout'
-alias gcm='git commit -m'
-alias gca='git commit -a'
-alias gcam='git commit -a -m'
-alias gsedit='git status --porcelain | sed "s/^.[A-Z\?].//" | xargs -o vim -p'
+alias git=hub
+alias g=git
+#alias gb='git branch'
+#alias gs='git status'
+#alias gl='git log --color=auto'
+#alias gd='git diff --color=auto'
+#alias ga='git add'
+#alias gc='git commit'
+#alias gp='git push'
+#alias gch='git checkout'
+#alias gcm='git commit -m'
+#alias gca='git commit -a'
+#alias gcam='git commit -a -m'
+#alias gsedit='git status --porcelain | sed "s/^.[A-Z\?].//" | xargs -o vim -p'
 
 # GNU coreutils (from homebrew)
-alias ls='gls --color --group-directories-first -h'
-alias ll='ls -l'
+#alias ls='gls --color --group-directories-first -h'
+alias ll='ls -lX'
 alias la='ls -lA'
 alias lt='ls -lt'
 alias lj='ll --hide="node_modules" --hide="bower_components"'
@@ -50,7 +52,18 @@ alias dockerv=docker-vagrant
 # ack
 alias acki='ack -i'
 
+# using vim as pager
+alias vless=/usr/local/share/vim/vim74/macros/less.sh
+
 # Functions
+
+function ls () {
+  opts="--color --group-directories-first --human-readable"
+  if [ -f package.json -a -d node_modules ]; then
+    opts="${opts} --hide=node_modules"
+  fi
+  gls ${opts} $*
+}
 
 # mkdir and cd to it
 function mkcd () {
