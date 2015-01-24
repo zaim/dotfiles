@@ -55,6 +55,9 @@ alias acki='ack -i'
 # using vim as pager
 alias vless=/usr/local/share/vim/vim74/macros/less.sh
 
+# npm run as build tool
+alias run='npm run'
+
 # Functions
 
 function ls () {
