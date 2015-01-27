@@ -34,3 +34,6 @@
 [submodule "vim/bundle/vim-css"]
 	path = vim/bundle/vim-css
 	url = https://github.com/JulesWang/css.vim
+[submodule "vim/bundle/vim-jinja"]
+	path = vim/bundle/vim-jinja
+	url = https://github.com/mitsuhiko/vim-jinja.git
